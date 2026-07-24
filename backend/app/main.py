@@ -89,3 +89,45 @@ def metrics() -> dict:
         "by_class": {str(k): _STATS["by_class"][k] for k in sorted(_STATS["by_class"])},
         "avg_confidence": round(_STATS["confidence_sum"] / total, 3) if total else None,
     }
+
+
+@app.on_event("startup")
+def _start_grafana_pusher() -> None:
+    """Pousse les métriques vers Grafana Cloud toutes les 30 s (si configuré)."""
+    url = os.environ.get("GRAFANA_URL")
+    user = os.environ.get("GRAFANA_USER")
+    token = os.environ.get("GRAFANA_TOKEN")
+    if not (url and user and token):
+        logger.info("Push Grafana désactivé (GRAFANA_URL/USER/TOKEN non définis).")
+        return
+
+    try:
+        import threading
+        import time
+
+        from prometheus_remote_writer import RemoteWriter
+
+        writer = RemoteWriter(url=url, auth={"username": user, "password": token})
+
+        def loop() -> None:
+            while True:
+                time.sleep(30)
+                total = _STATS["total"]
+                ts = int(time.time() * 1000)
+                avg = _STATS["confidence_sum"] / total if total else 0.0
+                series = [
+                    {"metric": {"__name__": "homevalue_predictions_total"}, "values": [total], "timestamps": [ts]},
+                    {"metric": {"__name__": "homevalue_avg_confidence"}, "values": [avg], "timestamps": [ts]},
+                ]
+                for k, n in _STATS["by_class"].items():
+                    series.append({"metric": {"__name__": "homevalue_predictions_by_class", "condition": str(k)},
+                                   "values": [n], "timestamps": [ts]})
+                try:
+                    writer.send(series)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("Push Grafana échoué : %s", exc)
+
+        threading.Thread(target=loop, daemon=True).start()
+        logger.info("Push Grafana Cloud démarré.")
+    except Exception as exc:  # noqa: BLE001 - ne jamais empêcher l'API de démarrer
+        logger.warning("Pusher Grafana non démarré : %s", exc)
