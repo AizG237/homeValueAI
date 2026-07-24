@@ -59,7 +59,7 @@ def predict(features: dict) -> dict:
     predicted = int(max(probabilities, key=lambda k: probabilities[k]))
     return {
         "predicted_condition": predicted,
-        "label": CLASS_LABELS.get(predicted, "—"),
+        "label": CLASS_LABELS.get(predicted, "-"),
         "confidence": probabilities[str(predicted)],
         "probabilities": probabilities,
     }

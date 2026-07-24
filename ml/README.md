@@ -1,4 +1,4 @@
-# ML — Modèle de classification de l'état d'un bien
+# ML - Modèle de classification de l'état d'un bien
 
 Modèle `RandomForestClassifier` prédisant la variable `condition` (état du bien, 5 classes
 de 1 « Mauvais » à 5 « Excellent ») à partir de 18 caractéristiques.

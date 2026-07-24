@@ -98,8 +98,8 @@ export default function Landing({ onStart }: { onStart: () => void }) {
               margin: '0 0 34px',
             }}
           >
-            Classification instantanée de l'état d'un bien immobilier — de « Mauvais » à
-            « Excellent » — avec la probabilité de chaque classe. Modèle entraîné sur des dizaines
+            Classification instantanée de l'état d'un bien immobilier - de « Mauvais » à
+            « Excellent » - avec la probabilité de chaque classe. Modèle entraîné sur des dizaines
             de milliers de transactions.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center' }}>
@@ -333,7 +333,7 @@ export default function Landing({ onStart }: { onStart: () => void }) {
             </h2>
             <p style={{ color: t.muted, lineHeight: 1.6, fontSize: 15.5, maxWidth: 520, margin: '0 0 26px' }}>
               Random Forest Classifier entraîné sur le dataset King County. 17 caractéristiques en
-              entrée, la classe d'état la plus probable en sortie — accompagnée de la distribution
+              entrée, la classe d'état la plus probable en sortie - accompagnée de la distribution
               complète des probabilités.
             </p>
             <button onClick={onStart} className="hv-lift" style={ctaPrimary(t)}>

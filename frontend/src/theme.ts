@@ -1,4 +1,4 @@
-// Jetons de design (design tokens) — dérivés du design HomeValue.AI.
+// Jetons de design (design tokens) - dérivés du design HomeValue.AI.
 export interface Tokens {
   isDark: boolean;
   primary: string;

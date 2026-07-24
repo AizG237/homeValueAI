@@ -4,8 +4,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# ML artifacts (régénérables via ml/train.py)
-ml/artifacts/*.pkl
+# Le modèle model.pkl est committé (servi par le backend sur Render).
+# Runs MLflow locaux ignorés.
+mlruns/
 
 # Node / frontend
 frontend/node_modules/

@@ -185,7 +185,7 @@ export default function Wizard({ form, step, setStep, setField, onBack, onSubmit
               Localisation
             </h2>
             <p style={{ color: t.muted, margin: '0 0 24px' }}>
-              Cliquez sur la carte pour placer le bien — coordonnées et code postal se remplissent
+              Cliquez sur la carte pour placer le bien - coordonnées et code postal se remplissent
               automatiquement.
             </p>
 
@@ -208,7 +208,7 @@ export default function Wizard({ form, step, setStep, setField, onBack, onSubmit
             <div style={{ height: 1, background: t.border, margin: '28px 0' }} />
             <h3 style={{ fontFamily: 'Sora', fontWeight: 600, fontSize: 16, margin: '0 0 6px' }}>Voisinage</h3>
             <p style={{ color: t.muted, fontSize: 13.5, margin: '0 0 18px' }}>
-              Moyennes des 15 biens voisins — impacte fortement le prix.
+              Moyennes des 15 biens voisins - impacte fortement le prix.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 20 }}>
               <NumberField label="Surface habitable voisine" unit="sqft" hint="Moyenne des 15 voisins" value={form.sqft_living15} min={0} onChange={(v) => setField('sqft_living15', v)} />

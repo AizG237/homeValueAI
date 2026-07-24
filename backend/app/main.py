@@ -1,4 +1,4 @@
-"""API HomeValue.AI — expose le modèle de classification d'état via FastAPI."""
+"""API HomeValue.AI - expose le modèle de classification d'état via FastAPI."""
 from __future__ import annotations
 
 import os

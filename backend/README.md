@@ -1,4 +1,4 @@
-# Backend — API HomeValue.AI (FastAPI)
+# Backend - API HomeValue.AI (FastAPI)
 
 Charge le bundle `ml/artifacts/model.pkl` et expose la prédiction d'état.
 
@@ -20,7 +20,7 @@ Docs interactives : http://localhost:8000/docs
 Vérifie que le modèle est chargé.
 
 ### `POST /api/predict`
-Body — les 18 caractéristiques :
+Body - les 18 caractéristiques :
 
 ```json
 {

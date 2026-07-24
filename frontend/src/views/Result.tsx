@@ -30,7 +30,7 @@ export default function Result({ status, result, form, errorMsg, onRetry, onEdit
     { label: 'Terrain', value: `${fmt(form.sqft_lot)} sqft` },
     { label: 'Prix', value: `$${fmt(form.price)}` },
     { label: 'Grade', value: `${form.grade}/13` },
-    { label: 'Vue', value: VIEW_SCALE[form.view] || '—' },
+    { label: 'Vue', value: VIEW_SCALE[form.view] || '-' },
     { label: 'Rénové', value: form.was_renovated ? 'Oui' : 'Non' },
     { label: 'Âge', value: `${form.house_age} ans` },
     { label: 'Code postal', value: form.zipcode },
@@ -38,7 +38,7 @@ export default function Result({ status, result, form, errorMsg, onRetry, onEdit
 
   const share = async () => {
     const text = result
-      ? `HomeValue.AI — État prédit : ${result.predicted_condition}/5 (${result.label}), confiance ${Math.round(
+      ? `HomeValue.AI - État prédit : ${result.predicted_condition}/5 (${result.label}), confiance ${Math.round(
           result.confidence * 100,
         )}%.`
       : 'HomeValue.AI';

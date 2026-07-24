@@ -1,5 +1,5 @@
 """
-Entraînement du modèle HomeValue.AI — classification de l'état d'un bien (`condition`).
+Entraînement du modèle HomeValue.AI : classification de l'état d'un bien (`condition`).
 
 Reproduit fidèlement le processus du notebook `preprocessing.ipynb` :
   1. pré-traitement + feature engineering,
@@ -16,6 +16,7 @@ Usage :
 from __future__ import annotations
 
 import argparse
+import os
 import pickle
 import sys
 from pathlib import Path
@@ -31,7 +32,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import balanced_accuracy_score, classification_report, f1_score, log_loss
 from sklearn.model_selection import train_test_split
 
-# Ordre des features attendu par le modèle — l'API DOIT respecter cet ordre.
+# Ordre des features attendu par le modèle : l'API DOIT respecter cet ordre.
 FEATURE_ORDER = [
     "price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors",
     "waterfront", "view", "grade", "sqft_basement", "zipcode", "lat", "long",
@@ -66,18 +67,40 @@ def build_model() -> CalibratedClassifierCV:
     smote_rf = ImbPipeline([
         ("smote", SMOTE(random_state=42)),
         ("rf", RandomForestClassifier(
-            n_estimators=300, max_depth=20, min_samples_leaf=1,
+            n_estimators=150, max_depth=10, min_samples_leaf=10,
             random_state=42, n_jobs=-1,
         )),
     ])
-    # Calibration : l'UI présente les probabilités comme fiables -> on les corrige.
     return CalibratedClassifierCV(smote_rf, method="sigmoid", cv=3)
+
+
+def log_mlflow(params: dict, metrics: dict, model_path: Path) -> None:
+    """Trace le run dans MLflow (params, métriques, artefact modèle).
+
+    Utilise MLFLOW_TRACKING_URI si défini (serveur distant), sinon un dossier
+    local `mlruns/`. N'interrompt jamais l'entraînement si MLflow échoue.
+    """
+    try:
+        import mlflow
+
+        uri = os.environ.get("MLFLOW_TRACKING_URI")
+        if uri:
+            mlflow.set_tracking_uri(uri)
+        mlflow.set_experiment("homevalue-condition")
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            mlflow.log_metrics(metrics)
+            mlflow.log_artifact(str(model_path))
+        print(f"OK Run MLflow enregistré (tracking: {uri or 'mlruns/ local'})")
+    except Exception as exc:  # pragma: no cover
+        print(f"! MLflow non enregistré ({exc})")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Entraîne le modèle de condition.")
     parser.add_argument("--data", default="data/kc_house_data.csv")
     parser.add_argument("--out", default="artifacts/model.pkl")
+    parser.add_argument("--no-mlflow", action="store_true", help="Désactive le tracking MLflow.")
     args = parser.parse_args()
 
     here = Path(__file__).resolve().parent
@@ -122,6 +145,14 @@ def main() -> None:
     with open(out_path, "wb") as f:
         pickle.dump(bundle, f)
     print(f"OK Modèle sérialisé : {out_path}")
+
+    if not args.no_mlflow:
+        log_mlflow(
+            params={"strategy": "SMOTE+RF+calibration", "n_estimators": 150,
+                    "max_depth": 10, "min_samples_leaf": 10, "calibration": "sigmoid"},
+            metrics=bundle["metrics"],
+            model_path=out_path,
+        )
 
 
 if __name__ == "__main__":

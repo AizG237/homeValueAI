@@ -23,7 +23,7 @@ SN/
 ```
 
 Le modèle entraîné est **sérialisé dans un fichier pickle** (`ml/artifacts/model.pkl`) puis
-**consommé par l'API backend** — le frontend ne parle jamais au modèle directement, seulement
+**consommé par l'API backend** - le frontend ne parle jamais au modèle directement, seulement
 à l'API.
 
 ## Démarrage rapide

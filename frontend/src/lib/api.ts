@@ -3,7 +3,7 @@ import type { HouseForm, PredictResponse } from '../types';
 const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
-/** Appelle le backend FastAPI (POST /api/predict) — ou le mock local si activé. */
+/** Appelle le backend FastAPI (POST /api/predict) - ou le mock local si activé. */
 export async function predictCondition(form: HouseForm): Promise<PredictResponse> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 1200));
@@ -30,7 +30,7 @@ export async function predictCondition(form: HouseForm): Promise<PredictResponse
 }
 
 /**
- * Mock local (démo hors-ligne) — reproduit la logique de scoring du design :
+ * Mock local (démo hors-ligne) - reproduit la logique de scoring du design :
  * softmax sur 5 classes centrée sur 3 + un score plausible.
  */
 export function mockPredict(f: HouseForm): PredictResponse {
