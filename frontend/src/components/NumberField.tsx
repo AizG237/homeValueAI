@@ -12,6 +12,13 @@ interface Props {
 
 export default function NumberField({ label, hint, unit, value, min, max, onChange }: Props) {
   const { t } = useTheme();
+
+  // Borne la valeur dans [min, max] quand l'utilisateur quitte le champ.
+  const clamp = (v: number) => {
+    if (min !== undefined && v < min) return min;
+    if (max !== undefined && v > max) return max;
+    return v;
+  };
   return (
     <div>
       <div style={{ marginBottom: 10, minHeight: 38 }}>
@@ -34,6 +41,7 @@ export default function NumberField({ label, hint, unit, value, min, max, onChan
           min={min}
           max={max}
           onChange={(e) => onChange(Number(e.target.value))}
+          onBlur={(e) => onChange(clamp(Number(e.target.value)))}
           style={{
             flex: 1,
             padding: '10px 0',
