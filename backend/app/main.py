@@ -1,13 +1,22 @@
 """API HomeValue.AI - expose le modèle de classification d'état via FastAPI."""
 from __future__ import annotations
 
+import json
+import logging
 import os
+from collections import Counter
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .predictor import load_bundle, predict
 from .schemas import PredictRequest, PredictResponse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("homevalue")
+
+# Compteurs en mémoire (remis à zéro à chaque redémarrage du serveur).
+_STATS = {"total": 0, "by_class": Counter(), "confidence_sum": 0.0}
 
 app = FastAPI(
     title="HomeValue.AI API",
@@ -57,4 +66,26 @@ def predict_condition(payload: PredictRequest) -> PredictResponse:
         raise HTTPException(status_code=503, detail=str(exc))
     except Exception as exc:  # noqa: BLE001 - surface une erreur claire au client
         raise HTTPException(status_code=500, detail=f"Erreur de prédiction : {exc}")
+
+    # Monitoring : un log par prédiction + compteurs pour /api/metrics.
+    _STATS["total"] += 1
+    _STATS["by_class"][result["predicted_condition"]] += 1
+    _STATS["confidence_sum"] += result["confidence"]
+    logger.info(json.dumps({
+        "event": "prediction",
+        "predicted": result["predicted_condition"],
+        "confidence": round(result["confidence"], 3),
+        "features": payload.model_dump(),
+    }))
     return PredictResponse(**result)
+
+
+@app.get("/api/metrics")
+def metrics() -> dict:
+    """Résumé des prédictions servies depuis le dernier démarrage."""
+    total = _STATS["total"]
+    return {
+        "total_predictions": total,
+        "by_class": {str(k): _STATS["by_class"][k] for k in sorted(_STATS["by_class"])},
+        "avg_confidence": round(_STATS["confidence_sum"] / total, 3) if total else None,
+    }
