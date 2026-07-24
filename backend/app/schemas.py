@@ -1,7 +1,13 @@
 """Schémas d'entrée / sortie de l'API (Pydantic v2)."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+# Champs entiers : on arrondit tout flottant reçu (ex. 12.95 -> 13) au lieu de rejeter.
+_INT_FIELDS = (
+    "bedrooms", "sqft_living", "sqft_basement", "sqft_lot", "grade", "view",
+    "waterfront", "was_renovated", "house_age", "yr_sold", "sqft_living15", "sqft_lot15",
+)
 
 
 class PredictRequest(BaseModel):
@@ -26,6 +32,11 @@ class PredictRequest(BaseModel):
     long: float
     sqft_living15: int = Field(ge=0)
     sqft_lot15: int = Field(ge=0)
+
+    @field_validator(*_INT_FIELDS, mode="before")
+    @classmethod
+    def _round_to_int(cls, v):
+        return round(float(v))
 
     model_config = {
         "json_schema_extra": {
