@@ -86,7 +86,7 @@ def log_mlflow(params: dict, metrics: dict, model_path: Path) -> None:
         uri = os.environ.get("MLFLOW_TRACKING_URI")
         if uri:
             mlflow.set_tracking_uri(uri)
-        mlflow.set_experiment("homevalue-condition")
+        mlflow.set_experiment("homeValueExperiment")
         with mlflow.start_run():
             mlflow.log_params(params)
             mlflow.log_metrics(metrics)
@@ -131,10 +131,15 @@ def main() -> None:
     print(f"- F1 macro={f1:.3f}  balanced_acc={bal_acc:.3f}  log_loss={ll:.3f}")
     print(classification_report(y_test, y_pred, zero_division=0))
 
+    # Fréquence de chaque classe : sert à la décision corrigée côté API
+    # (reconnaître les classes rares sans toucher aux probabilités affichées).
+    priors = {int(c): float((y == c).mean()) for c in model.classes_}
+
     bundle = {
         "model": model,
         "features": FEATURE_ORDER,
         "classes": [int(c) for c in model.classes_],
+        "priors": priors,
         "target": TARGET,
         "metrics": {
             "f1_macro": round(float(f1), 4),

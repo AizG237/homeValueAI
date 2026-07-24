@@ -54,9 +54,20 @@ def predict(features: dict) -> dict:
     row = pd.DataFrame([[payload[col] for col in order]], columns=order)
 
     proba = model.predict_proba(row)[0]
+    # Probabilités calibrées (honnêtes) : affichées telles quelles.
     probabilities = {str(int(c)): float(p) for c, p in zip(classes, proba)}
 
-    predicted = int(max(probabilities, key=lambda k: probabilities[k]))
+    # Décision corrigée par la fréquence des classes : on choisit la classe dont la
+    # probabilité est la plus élevée RELATIVEMENT à sa rareté -> reconnaît les classes
+    # rares (1, 2). beta réglable via DECISION_BETA (0 = argmax simple, 1 = correction pleine).
+    beta = float(os.environ.get("DECISION_BETA", "1.0"))
+    priors = bundle.get("priors")
+    if priors and beta > 0:
+        scored = {c: proba[i] / (priors[c] ** beta) for i, c in enumerate(classes)}
+        predicted = int(max(scored, key=lambda k: scored[k]))
+    else:
+        predicted = int(max(probabilities, key=lambda k: probabilities[k]))
+
     return {
         "predicted_condition": predicted,
         "label": CLASS_LABELS.get(predicted, "-"),
