@@ -27,6 +27,12 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root() -> dict:
+    """Racine : évite un 404 sur les sondes de Render (répond aussi en HEAD)."""
+    return {"service": "HomeValue.AI API", "health": "/api/health", "docs": "/docs"}
+
+
 @app.get("/api/health")
 def health() -> dict:
     """Vérifie que le modèle est chargeable."""
