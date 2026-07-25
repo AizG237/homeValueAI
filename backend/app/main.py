@@ -111,7 +111,6 @@ def _start_grafana_pusher() -> None:
 
         def loop() -> None:
             while True:
-                time.sleep(30)
                 total = _STATS["total"]
                 ts = int(time.time() * 1000)
                 avg = _STATS["confidence_sum"] / total if total else 0.0
@@ -124,8 +123,10 @@ def _start_grafana_pusher() -> None:
                                    "values": [n], "timestamps": [ts]})
                 try:
                     writer.send(series)
+                    logger.info("Push Grafana OK (%d séries, total=%d)", len(series), total)
                 except Exception as exc:  # noqa: BLE001
                     logger.warning("Push Grafana échoué : %s", exc)
+                time.sleep(30)
 
         threading.Thread(target=loop, daemon=True).start()
         logger.info("Push Grafana Cloud démarré.")
