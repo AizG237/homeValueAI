@@ -47,19 +47,14 @@ def predict(features: dict) -> dict:
     classes = bundle["classes"]
 
     payload = dict(features)
-    # Le modèle a été entraîné avec zipcode en entier.
     payload["zipcode"] = int(payload["zipcode"])
-
-    # Reconstruit le vecteur dans l'ordre EXACT d'entraînement.
     row = pd.DataFrame([[payload[col] for col in order]], columns=order)
 
     proba = model.predict_proba(row)[0]
-    # Probabilités calibrées (honnêtes) : affichées telles quelles.
     probabilities = {str(int(c)): float(p) for c, p in zip(classes, proba)}
 
-    # Décision corrigée par la fréquence des classes : on choisit la classe dont la
-    # probabilité est la plus élevée RELATIVEMENT à sa rareté -> reconnaît les classes
-    # rares (1, 2). beta réglable via DECISION_BETA (0 = argmax simple, 1 = correction pleine).
+    # Pondère par la rareté de la classe pour ne pas ignorer les classes 1/2.
+    # DECISION_BETA : 0 = argmax simple, 1 = correction pleine.
     beta = float(os.environ.get("DECISION_BETA", "1.0"))
     priors = bundle.get("priors")
     if priors and beta > 0:

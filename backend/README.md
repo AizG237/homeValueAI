@@ -44,9 +44,24 @@ Réponse :
 }
 ```
 
+### `GET /api/metrics`
+Résumé des prédictions servies depuis le dernier démarrage (compteurs en mémoire) :
+
+```json
+{
+  "total_predictions": 42,
+  "by_class": { "3": 10, "4": 25, "5": 7 },
+  "avg_confidence": 0.58
+}
+```
+
 ## Configuration (variables d'environnement)
 
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `MODEL_PATH` | `../ml/artifacts/model.pkl` | Chemin du bundle pickle |
 | `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Origines autorisées |
+| `DECISION_BETA` | `1.0` | Correction de décision par rareté des classes (0 = argmax simple, 1 = correction pleine) |
+| `GRAFANA_URL` | - | URL remote_write Grafana Cloud (push des métriques toutes les 30s si définie avec `GRAFANA_USER`/`GRAFANA_TOKEN`) |
+| `GRAFANA_USER` | - | Utilisateur Grafana Cloud |
+| `GRAFANA_TOKEN` | - | Token Grafana Cloud |
